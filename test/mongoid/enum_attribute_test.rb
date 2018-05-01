@@ -187,4 +187,30 @@ describe Mongoid::EnumAttribute do
     before { Mongoid::EnumAttribute.configure { |config| @config = config } }
     it { @config.must_equal Mongoid::EnumAttribute.configuration }
   end
+
+  describe "prefix defined in configuration" do
+    let(:field_name_prefix) { "___" }
+    let(:old_field_name_prefix) { Mongoid::EnumAttribute.configuration.field_name_prefix }
+
+    before do
+      Mongoid::EnumAttribute.configure do |config|
+        config.field_name_prefix = field_name_prefix
+      end
+
+      TestClassWithPrefix = Class.new do
+        include Mongoid::Document
+        include Mongoid::EnumAttribute
+
+        enum :status, [:awaiting_approval, :approved, :banned]
+      end
+    end
+
+    it { TestClassWithPrefix.fields["#{field_name_prefix}status"].must_be :present? }
+
+    after do
+      Mongoid::EnumAttribute.configure do |config|
+        config.field_name_prefix = old_field_name_prefix
+      end
+    end
+  end
 end
