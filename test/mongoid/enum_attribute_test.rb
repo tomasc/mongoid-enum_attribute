@@ -138,37 +138,39 @@ describe Mongoid::EnumAttribute do
 
   describe "scopes" do
     describe "when singular" do
+      before do
+        instance.save!
+        instance.banned!
+      end
+      it { TestClass.banned.must_include instance }
     end
-    # context "when singular" do
-    #   it "returns the corresponding documents" do
-    #     instance.save
-    #     instance.banned!
-    #     expect(User.banned.to_a).to eq [instance]
-    #   end
-    # end
-    #
-    # context "when multiple" do
-    #   context "and only one document" do
-    #     it "returns that document" do
-    #       instance.save
-    #       instance.author!
-    #       instance.editor!
-    #       expect(User.author.to_a).to eq [instance]
-    #     end
-    #   end
-    #
-    #   context "and more than one document" do
-    #     it "returns all documents with those values" do
-    #       instance.save
-    #       instance.author!
-    #       instance.editor!
-    #       instance2 = klass.create
-    #       instance2.author!
-    #       expect(User.author.to_a).to eq [instance, instance2]
-    #       expect(User.editor.to_a).to eq [instance]
-    #     end
-    #   end
-    # end
+
+    describe "when multiple" do
+      describe "and only one document" do
+        before do
+          instance.save!
+          instance.author!
+          instance.editor!
+        end
+        it { TestClass.author.must_include instance }
+        it { TestClass.editor.must_include instance }
+      end
+
+      describe "and more than one document" do
+        let(:instance_2) { kls.new }
+
+        before do
+          instance.save!
+          instance.author!
+          instance.editor!
+          instance_2.save!
+          instance_2.author!
+        end
+        it { TestClass.author.must_include instance }
+        it { TestClass.author.must_include instance_2 }
+        it { TestClass.editor.must_include instance }
+      end
+    end
   end
 
   describe "constant" do
