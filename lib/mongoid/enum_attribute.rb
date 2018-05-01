@@ -8,7 +8,7 @@ module Mongoid
 
     module ClassMethods
       def enum(name, values, options = {})
-        field_name = [Mongoid::EnumAttribute.configuration.field_name_prefix, name].join
+        field_name = "#{Mongoid::EnumAttribute.configuration.field_name_prefix}#{name}"
         options = default_options(values).merge(options)
 
         set_values_constant(name, values)
@@ -25,7 +25,9 @@ module Mongoid
         { multiple: false,
           default: values.first,
           required: true,
-          validate: true
+          validate: true,
+          prefix: Mongoid::EnumAttribute.configuration.prefix,
+          suffix: Mongoid::EnumAttribute.configuration.suffix
         }
       end
 
@@ -61,12 +63,26 @@ module Mongoid
         values.each do |value|
           scope(value, -> { where(field_name => value) })
 
+          accessor_name = value
+          accessor_name = apply_prefix(accessor_name, name, value, options[:prefix]) if options[:prefix]
+          accessor_name = apply_suffix(accessor_name, name, value, options[:suffix]) if options[:suffix]
+
           if options[:multiple]
-            define_array_accessor(name, field_name, value)
+            define_array_accessor(accessor_name, field_name, value)
           else
-            define_string_accessor(name, field_name, value)
+            define_string_accessor(accessor_name, field_name, value)
           end
         end
+      end
+
+      def apply_prefix(accessor_name, name, value, prefix)
+        return "#{prefix}_#{value}" if prefix.is_a?(String)
+        "#{name}_#{value}"
+      end
+
+      def apply_suffix(accessor_name, name, value, suffix)
+        return "#{value}_#{suffix}" if suffix.is_a?(String)
+        "#{value}_#{name}"
       end
 
       def define_field_accessor(name, field_name, options)
@@ -87,14 +103,14 @@ module Mongoid
         class_eval "def #{name}() self.send(:#{field_name}) end"
       end
 
-      def define_array_accessor(name, field_name, value)
-        class_eval "def #{value}?() self.#{field_name}.include?(:#{value}) end"
-        class_eval "def #{value}!() update_attributes! :#{field_name} => (self.#{field_name} || []) + [:#{value}] end"
+      def define_array_accessor(accessor_name, field_name, value)
+        class_eval "def #{accessor_name}?() self.#{field_name}.include?(:#{value}) end"
+        class_eval "def #{accessor_name}!() update_attributes! :#{field_name} => (self.#{field_name} || []) + [:#{value}] end"
       end
 
-      def define_string_accessor(name, field_name, value)
-        class_eval "def #{value}?() self.#{field_name} == :#{value} end"
-        class_eval "def #{value}!() update_attributes! :#{field_name} => :#{value} end"
+      def define_string_accessor(accessor_name, field_name, value)
+        class_eval "def #{accessor_name}?() self.#{field_name} == :#{value} end"
+        class_eval "def #{accessor_name}!() update_attributes! :#{field_name} => :#{value} end"
       end
     end
   end

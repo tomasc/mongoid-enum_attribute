@@ -134,6 +134,50 @@ describe Mongoid::EnumAttribute do
         it { instance.roles.must_equal [] }
       end
     end
+
+    describe "prefix" do
+      let(:kls) { TestClassPrefix }
+
+      describe "when true" do
+        it { instance.must_be :respond_to?, :status_awaiting_approval! }
+        it { instance.must_be :respond_to?, :status_approved! }
+        it { instance.must_be :respond_to?, :status_banned! }
+        it { instance.must_be :respond_to?, :status_awaiting_approval? }
+        it { instance.must_be :respond_to?, :status_approved? }
+        it { instance.must_be :respond_to?, :status_banned? }
+      end
+
+      describe "when specified" do
+        it { instance.must_be :respond_to?, :prefixed_author! }
+        it { instance.must_be :respond_to?, :prefixed_editor! }
+        it { instance.must_be :respond_to?, :prefixed_admin! }
+        it { instance.must_be :respond_to?, :prefixed_author? }
+        it { instance.must_be :respond_to?, :prefixed_editor? }
+        it { instance.must_be :respond_to?, :prefixed_admin? }
+      end
+    end
+
+    describe "suffix" do
+      let(:kls) { TestClassSuffix }
+
+      describe "when true" do
+        it { instance.must_be :respond_to?, :awaiting_approval_status! }
+        it { instance.must_be :respond_to?, :approved_status! }
+        it { instance.must_be :respond_to?, :banned_status! }
+        it { instance.must_be :respond_to?, :awaiting_approval_status? }
+        it { instance.must_be :respond_to?, :approved_status? }
+        it { instance.must_be :respond_to?, :banned_status? }
+      end
+
+      describe "when specified" do
+        it { instance.must_be :respond_to?, :author_suffixed! }
+        it { instance.must_be :respond_to?, :editor_suffixed! }
+        it { instance.must_be :respond_to?, :admin_suffixed! }
+        it { instance.must_be :respond_to?, :author_suffixed? }
+        it { instance.must_be :respond_to?, :editor_suffixed? }
+        it { instance.must_be :respond_to?, :admin_suffixed? }
+      end
+    end
   end
 
   describe "scopes" do
