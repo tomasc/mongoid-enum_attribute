@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Tomáš Celizna"]
   spec.email         = ["tomas.celizna@gmail.com"]
 
-  spec.summary       = %q{ActiveRecord::Enum for Mongoid}
+  spec.summary       = %q{Take on ActiveRecord::Enum in Mongoid}
   spec.homepage      = "https://github.com/tomasc/mongoid-enum_attribute"
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
