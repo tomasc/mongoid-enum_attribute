@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/tomasc/mongoid-enum_attribute.svg)](https://travis-ci.org/tomasc/mongoid-enum_attribute) [![Gem Version](https://badge.fury.io/rb/mongoid-enum_attribute.svg)](http://badge.fury.io/rb/mongoid-enum_attribute) [![Coverage Status](https://img.shields.io/coveralls/tomasc/mongoid-enum_attribute.svg)](https://coveralls.io/r/tomasc/mongoid-enum_attribute)
 
-TODO: Delete this and the text above, and describe your gem
+Updated and tweaked version of the no-longer-maintained [mongoid_enum](https://github.com/thetron/mongoid-enum).
 
 ## Installation
 
@@ -22,7 +22,72 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+class Payment
+  include Mongoid::Document
+  include Mongoid::Enum
+
+  enum :status, [:pending, :approved, :declined]
+end
+```
+
+Gives you getters,
+
+```ruby
+payment.status
+# => :pending
+```
+
+setters,
+
+```ruby
+payment.approved!
+# => :approved
+```
+
+conditionals,
+
+```ruby
+payment.pending?
+# => :false
+```
+
+and scopes
+
+```ruby
+Payment.approved
+# => Mongoid::Criteria for payments where status is :approved
+```
+
+## Prefix / Suffix
+
+You can use the `:prefix` and `:suffix` options, to prefix or suffix the methods
+of the enum. If the passed value is `true`, the methods are prefixed/suffixed
+with the name of the enum. It is also possible to supply a custom value:
+
+```ruby
+enum :status, [:pending, :approved, :declined], prefix: true
+enum :payments_status, [:pending, :approved, :declined], prefix: :payments
+
+enum :status, [:pending, :approved, :declined], suffix: true
+enum :payments_status, [:pending, :approved, :declined], suffix: :payments
+```
+
+This will result in the following methods:
+
+```ruby
+payment.status_declined! # prefix: true
+payment.payments_declined! # prefix: :payments
+
+payment.declined_status! # suffix: true
+payment.declined_payments! # suffix: :payments
+```
+
+If you want to change the behavior app-wide you can use the configuration:
+
+```ruby
+CONFIGURATION
+```
 
 ## Development
 
