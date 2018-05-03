@@ -83,10 +83,14 @@ payment.declined_status! # suffix: true
 payment.declined_payments! # suffix: :payments
 ```
 
-If you want to change the behavior app-wide you can use the configuration:
+If you want to change the behaviour app-wide you can use the configuration:
 
 ```ruby
-CONFIGURATION
+Mongoid::EnumAttribute.configure do |config|
+  config.field_name_prefix = '_' # prefix of the field used to store the values in database
+  config.prefix = nil # prefix of the ! & ? method
+  config.suffix = nil # suffix of the ! & ? method
+end
 ```
 
 ## Development
