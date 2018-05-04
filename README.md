@@ -25,7 +25,7 @@ Or install it yourself as:
 ```ruby
 class Payment
   include Mongoid::Document
-  include Mongoid::Enum
+  include Mongoid::EnumAttribute
 
   enum :status, [:pending, :approved, :declined]
 end
