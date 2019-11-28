@@ -53,7 +53,7 @@ module Mongoid
         elsif options[:validate]
           validates(
             field_name,
-            inclusion: { in: values.map(&:to_sym) },
+            inclusion: { in: values.map(&:to_s) },
             allow_nil: !options[:required]
           )
         end
