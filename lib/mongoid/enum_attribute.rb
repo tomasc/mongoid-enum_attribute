@@ -37,7 +37,7 @@ module Mongoid
       end
 
       def create_field(field_name, options)
-        type = options[:multiple] && Array || Symbol
+        type = options[:multiple] && Array || String
         field field_name, type: type, default: options[:default]
       end
 
