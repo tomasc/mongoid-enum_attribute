@@ -100,7 +100,7 @@ module Mongoid
 
       def define_string_field_accessor(name, field_name)
         class_eval "def #{name}=(val) self.write_attribute(:#{field_name}, val && val.to_sym || nil) end"
-        class_eval "def #{name}() self.send(:#{field_name}) end"
+        class_eval "def #{name}() self.send(:#{field_name}).to_sym end"
       end
 
       def define_array_accessor(accessor_name, field_name, value)
@@ -109,7 +109,7 @@ module Mongoid
       end
 
       def define_string_accessor(accessor_name, field_name, value)
-        class_eval "def #{accessor_name}?() self.#{field_name} == :#{value} end"
+        class_eval "def #{accessor_name}?() self.#{field_name}.to_sym == :#{value} end"
         class_eval "def #{accessor_name}!() update_attributes! :#{field_name} => :#{value} end"
       end
     end
