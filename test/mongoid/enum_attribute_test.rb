@@ -17,7 +17,7 @@ describe Mongoid::EnumAttribute do
 
     describe "type" do
       describe "multiple: false" do
-        it { kls.fields[field_name].options[:type].must_equal Symbol }
+        it { kls.fields[field_name].options[:type].must_equal String }
         it { kls._validators[field_name.to_sym].first.must_be_kind_of ActiveModel::Validations::InclusionValidator }
       end
 
