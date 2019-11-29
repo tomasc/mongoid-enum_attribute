@@ -8,11 +8,11 @@ module Mongoid
 
     module ClassMethods
       def enum(name, values, options = {})
-        field_name = "#{Mongoid::EnumAttribute.configuration.field_name_prefix}#{name}"
+        field_name = name.to_s
         options = default_options(values).merge(options)
 
         set_values_constant(name, values)
-        create_field(field_name, options)
+        field_name = create_field(field_name, options)
 
         create_validations(field_name, values, options)
         define_value_scopes_and_accessors(name, field_name, values, options)
@@ -27,7 +27,8 @@ module Mongoid
           required: true,
           validate: true,
           prefix: Mongoid::EnumAttribute.configuration.prefix,
-          suffix: Mongoid::EnumAttribute.configuration.suffix
+          suffix: Mongoid::EnumAttribute.configuration.suffix,
+          field_name_prefix: Mongoid::EnumAttribute.configuration.field_name_prefix
         }
       end
 
@@ -38,7 +39,9 @@ module Mongoid
 
       def create_field(field_name, options)
         type = options[:multiple] && Array || String
+        field_name = "#{options[:field_name_prefix]}#{name}"
         field field_name, type: type, default: options[:default]
+        field_name
       end
 
       def create_validations(field_name, values, options)
