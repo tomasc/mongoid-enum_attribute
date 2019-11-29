@@ -39,7 +39,7 @@ module Mongoid
 
       def create_field(name, options)
         type = options[:multiple] && Array || String
-        field_name = options[:field_name].to_s || "#{options[:field_name_prefix]}#{name}"
+        field_name = (options[:field_name] || "#{options[:field_name_prefix]}#{name}").to_s
         raise "enum name #{name} and field_name option cannot be equal!" if name.to_s == field_name.to_s
         field field_name, type: type, default: options[:default]
         field_name
