@@ -39,7 +39,7 @@ module Mongoid
 
       def create_field(field_name, options)
         type = options[:multiple] && Array || String
-        field_name = "#{options[:field_name_prefix]}#{name}"
+        field_name = "#{options[:field_name_prefix]}#{field_name}"
         field field_name, type: type, default: options[:default]
         field_name
       end
@@ -98,12 +98,20 @@ module Mongoid
 
       def define_array_field_accessor(name, field_name)
         class_eval "def #{name}=(vals) self.write_attribute(:#{field_name}, Array(vals).compact.map(&:to_sym)) end"
-        class_eval "def #{name}() self.send(:#{field_name}).map{ |i| i.try(:to_sym) } end"
+        class_eval "
+          def #{name}()
+            return self.send(:#{field_name}).map{ |i| i.try(:to_sym) } if name != field_name
+            field_name.map{ |i| i.try(:to_sym) }
+          end"
       end
 
       def define_string_field_accessor(name, field_name)
         class_eval "def #{name}=(val) self.write_attribute(:#{field_name}, val && val.to_sym || nil) end"
-        class_eval "def #{name}() self.send(:#{field_name}).to_sym end"
+        class_eval "
+          def #{name}()
+            return self.send(:#{field_name}).to_sym if name != field_name
+            field_name.to_sym
+          end"
       end
 
       def define_array_accessor(accessor_name, field_name, value)
