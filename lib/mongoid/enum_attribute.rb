@@ -8,11 +8,10 @@ module Mongoid
 
     module ClassMethods
       def enum(name, values, options = {})
-        field_name = name.to_s
         options = default_options(values).merge(options)
 
         set_values_constant(name, values)
-        field_name = create_field(field_name, options)
+        field_name = create_field(name, options)
 
         create_validations(field_name, values, options)
         define_value_scopes_and_accessors(name, field_name, values, options)
@@ -28,7 +27,8 @@ module Mongoid
           validate: true,
           prefix: Mongoid::EnumAttribute.configuration.prefix,
           suffix: Mongoid::EnumAttribute.configuration.suffix,
-          field_name_prefix: Mongoid::EnumAttribute.configuration.field_name_prefix
+          field_name_prefix: Mongoid::EnumAttribute.configuration.field_name_prefix,
+          field_name: nil
         }
       end
 
@@ -37,9 +37,10 @@ module Mongoid
         const_set(const_name, values)
       end
 
-      def create_field(field_name, options)
+      def create_field(name, options)
         type = options[:multiple] && Array || String
-        field_name = "#{options[:field_name_prefix]}#{field_name}"
+        field_name = options[:field_name].to_s || "#{options[:field_name_prefix]}#{name}"
+        raise "enum name #{name} and field_name option cannot be equal!" if name.to_s == field_name.to_s
         field field_name, type: type, default: options[:default]
         field_name
       end
@@ -98,20 +99,12 @@ module Mongoid
 
       def define_array_field_accessor(name, field_name)
         class_eval "def #{name}=(vals) self.write_attribute(:#{field_name}, Array(vals).compact.map(&:to_sym)) end"
-        if name != field_name
-          class_eval "def #{name}() self.send(:#{field_name}).map{ |i| i.try(:to_sym) } end"
-        else
-          class_eval "def #{name}() self.field_name.map{ |i| i.try(:to_sym) } end"
-        end
+        class_eval "def #{name}() self.send(:#{field_name}).map{ |i| i.try(:to_sym) } end"
       end
 
       def define_string_field_accessor(name, field_name)
         class_eval "def #{name}=(val) self.write_attribute(:#{field_name}, val && val.to_sym || nil) end"
-        if name != field_name
-          class_eval "def #{name}() self.send(:#{field_name}).to_sym end"
-        else
-          class_eval "def #{name}() self.field_name.to_sym end"
-        end
+        class_eval "def #{name}() self.send(:#{field_name}).to_sym end"
       end
 
       def define_array_accessor(accessor_name, field_name, value)
