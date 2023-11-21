@@ -3,7 +3,7 @@ require "mongoid"
 require "mongoid/enum_attribute"
 
 require "bundler/setup"
-require "database_cleaner"
+require "database_cleaner/mongoid"
 require "minitest"
 require "minitest/autorun"
 require "minitest/spec"
@@ -17,10 +17,7 @@ end
 Mongoid.logger.level = Logger::INFO
 Mongo::Logger.logger.level = Logger::INFO
 
-DatabaseCleaner.orm = :mongoid
-DatabaseCleaner.strategy = :truncation
-
-class MiniTest::Spec
+class Minitest::Spec
   before(:each) { DatabaseCleaner.start }
   after(:each) { DatabaseCleaner.clean }
 end
